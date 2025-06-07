@@ -1,12 +1,16 @@
 
 import pickle
+import os
 
 ACTIONS = ['Up', 'Down', 'Left', 'Right']
 
 class SimpleAIQ:
     def __init__(self, qtable_path='qtable.pkl'):
-        with open(qtable_path, 'rb') as f:
-            self.q_table = pickle.load(f)
+        if os.path.exists(qtable_path):
+            with open(qtable_path, 'rb') as f:
+                self.q_table = pickle.load(f)
+        else:
+            self.q_table = {}
 
     def normalize_state(self, board):
         def rotate(b): return [list(row) for row in zip(*b[::-1])]

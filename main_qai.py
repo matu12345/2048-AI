@@ -1,13 +1,15 @@
 
 import tkinter as tk
+import argparse
+import os
 from game import Game
 from simple_ai_qlearn import SimpleAIQ
 
 class GameUI:
-    def __init__(self, root):
+    def __init__(self, root, qtable_path='qtable.pkl'):
         self.root = root
         self.game = Game()
-        self.ai = SimpleAIQ('qtable.pkl')
+        self.ai = SimpleAIQ(qtable_path)
         self.auto_job = None
 
         self.root.title("2048 Q学習AI")
@@ -76,6 +78,13 @@ class GameUI:
         self.score_label.config(text='Score: {}'.format(self.game.score))
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Play 2048 with a Q-learning AI')
+    parser.add_argument('--qtable', default='qtable.pkl', help='path to Q-table file')
+    args = parser.parse_args()
+
+    if not os.path.exists(args.qtable):
+        print(f'Q-table file {args.qtable} not found. Run qlearning.py first to train.')
+
     root = tk.Tk()
-    ui = GameUI(root)
+    ui = GameUI(root, qtable_path=args.qtable)
     root.mainloop()

@@ -1,6 +1,8 @@
 ### ファイル: qlearning_ai.py
 import pickle
 import random
+import os
+import argparse
 from game import Game
 
 ACTIONS = ['Up', 'Down', 'Left', 'Right']
@@ -31,7 +33,12 @@ def update_q(q_table, state, action, reward, next_state, alpha, gamma):
     q_table[(state, action)] = old + alpha * (reward + gamma * max_next - old)
 
 def train_q_learning(episodes=1000, epsilon=0.1, alpha=0.1, gamma=0.9, save_path='qtable.pkl'):
-    q_table = {}
+    if os.path.exists(save_path):
+        with open(save_path, 'rb') as f:
+            q_table = pickle.load(f)
+        print(f"Loaded existing Q-table from {save_path}")
+    else:
+        q_table = {}
     for ep in range(1, episodes + 1):
         game = Game()
         state = normalize_state(game.get_state())
@@ -83,3 +90,21 @@ class QAI:
 
 # 学習はコマンドで: python qlearning_ai.py --episodes 5000 など
 # その後に main.py を起動すれば、GUIで Q 学習済み AI がプレイします。
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Train 2048 Q-learning AI')
+    parser.add_argument('--episodes', type=int, default=1000,
+                        help='number of training episodes')
+    parser.add_argument('--epsilon', type=float, default=0.1,
+                        help='epsilon for epsilon-greedy')
+    parser.add_argument('--alpha', type=float, default=0.1,
+                        help='learning rate')
+    parser.add_argument('--gamma', type=float, default=0.9,
+                        help='discount factor')
+    parser.add_argument('--qtable', default='qtable.pkl',
+                        help='path to save/load Q-table')
+    args = parser.parse_args()
+
+    train_q_learning(episodes=args.episodes, epsilon=args.epsilon,
+                     alpha=args.alpha, gamma=args.gamma,
+                     save_path=args.qtable)
